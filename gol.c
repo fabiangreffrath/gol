@@ -5,7 +5,7 @@ static const char *const title = "Game of Life";
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
-#define SIZE 7
+#define SIZE 8
 #define SIZEUNIT (1 << SIZE)
 #define SIZEMASK (SIZEUNIT - 1)
 
@@ -34,11 +34,13 @@ static void init_grid(void)
 */
 
 // f-pentomino
+/*
   grid[cx-1][cy]   = ALIVE;
   grid[cx]  [cy-1] = ALIVE;
   grid[cx]  [cy]   = ALIVE;
   grid[cx]  [cy+1] = ALIVE;
   grid[cx+1][cy-1] = ALIVE;
+*/
 
 // double-u
 /*
@@ -85,7 +87,6 @@ static void init_grid(void)
 */
 
 // acorn
-/*
   grid[cx-3][cy+1] = ALIVE;
   grid[cx-2][cy-1] = ALIVE;
   grid[cx-2][cy+1] = ALIVE;
@@ -93,7 +94,6 @@ static void init_grid(void)
   grid[cx+1][cy+1] = ALIVE;
   grid[cx+2][cy+1] = ALIVE;
   grid[cx+3][cy+1] = ALIVE;
-*/
 }
 
 static int number_of_neighbours_border(int x, int y)
@@ -259,7 +259,7 @@ static uint32_t crc32 (const void *buf, size_t size)
   return crc ^ ~0U;
 }
 
-static uint32_t crc[4];
+static uint32_t crc[8];
 
 static int sequence_detected (int step)
 {
@@ -296,7 +296,7 @@ int main (int argc, char **argv)
   {
     int x, y;
 
-    crc[step & 3] = crc32(grid, SIZEUNIT * SIZEUNIT);
+    crc[step & 7] = crc32(grid, SIZEUNIT * SIZEUNIT);
 
     draw_grid();
 
@@ -333,7 +333,7 @@ int main (int argc, char **argv)
       }
     }
 
-    if (alive == 0 || sequence_detected(step & 3))
+    if (alive == 0 || sequence_detected(step & 7))
     {
       quit = 1;
     }
