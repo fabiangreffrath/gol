@@ -5,6 +5,9 @@ static const char *const title = "Game of Life";
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
+static int myargc;
+static char **myargv;
+
 #define SIZE 8
 #define SIZEUNIT (1 << SIZE)
 #define SIZEMASK (SIZEUNIT - 1)
@@ -276,17 +279,41 @@ static int sequence_detected (int step)
   return 0;
 }
 
+int command_line_parameter (const char *parm)
+{
+  int i;
+
+  for (i = 1; i < myargc; i++)
+  {
+    if (strcmp(myargv[i], parm) == 0)
+    {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 int main (int argc, char **argv)
 {
   int quit = 0;
   int step = 0, alive;
   char msg[64];
+  int flags = SDL_WINDOW_RESIZABLE;
+
+  myargc = argc;
+  myargv = argv;
+
+  if (command_line_parameter("-fullscreen"))
+  {
+    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  }
 
   SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_CreateWindowAndRenderer(SIZEUNIT, SIZEUNIT, SDL_WINDOW_RESIZABLE, &window, &renderer);
+  SDL_CreateWindowAndRenderer(SIZEUNIT, SIZEUNIT, flags, &window, &renderer);
   SDL_RenderSetLogicalSize(renderer, SIZEUNIT, SIZEUNIT);
   SDL_SetWindowTitle(window, title);
 
