@@ -1,6 +1,6 @@
 #!/usr/bin/make
 
-CFLAGS ?= -O3
+CFLAGS ?= -O3 -Wall
 
 CFLAGS += $(shell pkg-config --cflags sdl2)
 LDLIBS += $(shell pkg-config --libs sdl2)

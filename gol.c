@@ -2,7 +2,7 @@
 
 #include "crc32.h"
 
-static const char const title[] = "Game of Life";
+static const char title[] = "Game of Life";
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -251,6 +251,11 @@ int main (int argc, char **argv)
   if (command_line_parameter("-fullscreen"))
   {
     flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  }
+
+  if (command_line_parameter("-torus"))
+  {
+    number_of_neighbours = number_of_neighbours_torus;
   }
 
   SDL_Event event;
