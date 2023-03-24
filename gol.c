@@ -23,74 +23,34 @@ enum
 
 static unsigned char grid[SIZEUNIT][SIZEUNIT];
 
-static void init_grid(void)
+static void init_grid(char *filename)
 {
-  int cx = SIZEUNIT / 2, cy = SIZEUNIT / 2;
+  const int cx = SIZEUNIT / 2, cy = SIZEUNIT / 2;
+  FILE *file;
+  char line[16];
+  int x, y;
 
   memset(grid, 0, sizeof(grid));
 
-// glider
-/*
-  grid[cx]  [cy]   = ALIVE;
-  grid[cx+1][cy+1] = ALIVE;
-  grid[cx-1][cy+2] = ALIVE;
-  grid[cx]  [cy+2] = ALIVE;
-  grid[cx+1][cy+2] = ALIVE;
-*/
+  if (filename == NULL)
+    goto fail;
 
-// f-pentomino
-/*
-  grid[cx-1][cy]   = ALIVE;
-  grid[cx]  [cy-1] = ALIVE;
-  grid[cx]  [cy]   = ALIVE;
-  grid[cx]  [cy+1] = ALIVE;
-  grid[cx+1][cy-1] = ALIVE;
-*/
+  file = fopen(filename, "r");
+  if (file == NULL)
+    goto fail;
 
-// double-u
-/*
-  grid[cx-1][cy-3] = ALIVE;
-  grid[cx]  [cy-3] = ALIVE;
-  grid[cx+1][cy-3] = ALIVE;
-  grid[cx-1][cy-2] = ALIVE;
-  grid[cx+1][cy-2] = ALIVE;
-  grid[cx-1][cy-1] = ALIVE;
-  grid[cx+1][cy-1] = ALIVE;
-  grid[cx-1][cy+3] = ALIVE;
-  grid[cx]  [cy+3] = ALIVE;
-  grid[cx+1][cy+3] = ALIVE;
-  grid[cx-1][cy+2] = ALIVE;
-  grid[cx+1][cy+2] = ALIVE;
-  grid[cx-1][cy+1] = ALIVE;
-  grid[cx+1][cy+1] = ALIVE;
-*/
+  while (fgets(line, 16, file) != NULL)
+  {
+    if (sscanf(line, "%d %d", &x, &y) == 2)
+    {
+      grid[cx+x][cy+y] = ALIVE;
+    }
+  }
 
-// 42
-/*
-  cx -= 3;
-  grid[cx-1][cy-2] = ALIVE;
-  grid[cx-1][cy-1] = ALIVE;
-  grid[cx-1][cy]   = ALIVE;
-  grid[cx]  [cy]   = ALIVE;
-  grid[cx+1][cy-2] = ALIVE;
-  grid[cx+1][cy-1] = ALIVE;
-  grid[cx+1][cy]   = ALIVE;
-  grid[cx+1][cy+1] = ALIVE;
-  grid[cx+1][cy+2] = ALIVE;
-  cx += 4;
-  grid[cx-1][cy+2] = ALIVE;
-  grid[cx]  [cy+2] = ALIVE;
-  grid[cx+1][cy+2] = ALIVE;
-  grid[cx+1][cy-1] = ALIVE;
-  grid[cx-1][cy]   = ALIVE;
-  grid[cx]  [cy]   = ALIVE;
-  grid[cx+1][cy]   = ALIVE;
-  grid[cx-1][cy+1] = ALIVE;
-  grid[cx-1][cy-2] = ALIVE;
-  grid[cx]  [cy-2] = ALIVE;
-  grid[cx+1][cy-2] = ALIVE;
-*/
+  fclose(file);
+  return;
 
+fail:
 // acorn
   grid[cx-3][cy+1] = ALIVE;
   grid[cx-2][cy-1] = ALIVE;
@@ -231,7 +191,7 @@ int command_line_parameter (const char *parm)
   {
     if (strcmp(myargv[i], parm) == 0)
     {
-      return 1;
+      return i;
     }
   }
 
@@ -244,6 +204,8 @@ int main (int argc, char **argv)
   int step = 0, alive;
   char msg[64];
   int flags = SDL_WINDOW_RESIZABLE;
+  char *filename = NULL;
+  int p;
 
   myargc = argc;
   myargv = argv;
@@ -258,6 +220,14 @@ int main (int argc, char **argv)
     number_of_neighbours = number_of_neighbours_torus;
   }
 
+  if ((p = command_line_parameter("-pattern")))
+  {
+    if (p + 1 < myargc)
+    {
+      filename = myargv[p + 1];
+    }
+  }
+
   SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
@@ -266,7 +236,7 @@ int main (int argc, char **argv)
   SDL_RenderSetLogicalSize(renderer, SIZEUNIT, SIZEUNIT);
   SDL_SetWindowTitle(window, title);
 
-  init_grid();
+  init_grid(filename);
 
   while (!quit)
   {
