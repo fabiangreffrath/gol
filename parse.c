@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "gol.h"
 
@@ -26,7 +27,6 @@ static char line[1024], *p = NULL;
 // RLE parser
 static int parse_rle (FILE *file)
 {
-  char rule[16];
   int x0 = cx, y0 = cy;
   int count = 0, mult = 1, i;
 
@@ -35,13 +35,10 @@ static int parse_rle (FILE *file)
     if (line[0] == '#')
       continue;
 
-    if (sscanf(line, "x = %d, y = %d, rule = %s", &x, &y, rule) == 3)
+    if (sscanf(line, "x = %d, y = %d", &x, &y) == 2)
     {
       x0 = cx - x / 2;
       y0 = cy - y / 2;
-
-      if (strcasecmp(rule, "b3/s23") != 0)
-        return 1;
 
       continue;
     }
@@ -54,20 +51,22 @@ static int parse_rle (FILE *file)
 
     for (p = line; *p; p++)
     {
+      *p = toupper(*p);
+
       if (*p >= '0' && *p <= '9')
       {
         count *= mult;
         count += *p - '0';
         mult *= 10;
       }
-      if (*p == 'b' || *p == 'o')
+      if (*p >= 'A' && *p <= 'Z')
       {
         if (count == 0)
           count = 1;
 
         for (i = 0; i < count; i++, x++)
         {
-          if (*p == 'o')
+          if (*p != 'B')
           {
             grid[x][y] = ALIVE;
             printf("O");
