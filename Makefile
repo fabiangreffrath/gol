@@ -5,7 +5,7 @@ CFLAGS ?= -O3 -Wall
 CFLAGS += $(shell pkg-config --cflags sdl2)
 LDLIBS += $(shell pkg-config --libs sdl2)
 
-OBJS = gol.o crc32.o
+OBJS = gol.o crc32.o parse.o
 
 gol: $(OBJS)
 

@@ -15,11 +15,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRC32_H
-#define CRC32_H
+#ifndef GOL_H
+#define GOL_H
 
-#include <stdint.h>
+#define SIZE 8
+#define SIZEUNIT (1 << SIZE)
+#define SIZEMASK (SIZEUNIT - 1)
+static const int cx = SIZEUNIT / 2, cy = SIZEUNIT / 2;
 
-uint32_t crc32 (const void *buf, size_t size);
+enum
+{
+  DEAD,
+  ALIVE,
+  SURVIVE
+};
+
+extern unsigned char grid[SIZEUNIT][SIZEUNIT];
 
 #endif

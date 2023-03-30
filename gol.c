@@ -1,6 +1,25 @@
+/*
+ * This file is part of Game of Life (https://github.com/fabiangreffrath/gol).
+ * Copyright © 2023, Fabian Greffrath.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "SDL.h"
 
 #include "crc32.h"
+#include "gol.h"
+#include "parse.h"
 
 static const char title[] = "Game of Life";
 
@@ -10,55 +29,27 @@ static SDL_Renderer *renderer;
 static int myargc;
 static char **myargv;
 
-#define SIZE 8
-#define SIZEUNIT (1 << SIZE)
-#define SIZEMASK (SIZEUNIT - 1)
+unsigned char grid[SIZEUNIT][SIZEUNIT];
 
-enum
+static int init_grid(char *filename)
 {
-  DEAD,
-  ALIVE,
-  SURVIVE
-};
-
-static unsigned char grid[SIZEUNIT][SIZEUNIT];
-
-static void init_grid(char *filename)
-{
-  const int cx = SIZEUNIT / 2, cy = SIZEUNIT / 2;
-  FILE *file;
-  char line[16];
-  int x, y;
-
   memset(grid, 0, sizeof(grid));
 
   if (filename == NULL)
-    goto fail;
-
-  file = fopen(filename, "r");
-  if (file == NULL)
-    goto fail;
-
-  while (fgets(line, 16, file) != NULL)
   {
-    if (sscanf(line, "%d %d", &x, &y) == 2)
-    {
-      grid[cx+x][cy+y] = ALIVE;
-    }
+    // acorn
+    grid[cx-3][cy+1] = ALIVE;
+    grid[cx-2][cy-1] = ALIVE;
+    grid[cx-2][cy+1] = ALIVE;
+    grid[cx]  [cy]   = ALIVE;
+    grid[cx+1][cy+1] = ALIVE;
+    grid[cx+2][cy+1] = ALIVE;
+    grid[cx+3][cy+1] = ALIVE;
+
+    return 0;
   }
-
-  fclose(file);
-  return;
-
-fail:
-// acorn
-  grid[cx-3][cy+1] = ALIVE;
-  grid[cx-2][cy-1] = ALIVE;
-  grid[cx-2][cy+1] = ALIVE;
-  grid[cx]  [cy]   = ALIVE;
-  grid[cx+1][cy+1] = ALIVE;
-  grid[cx+2][cy+1] = ALIVE;
-  grid[cx+3][cy+1] = ALIVE;
+  else
+    return parse_file(filename);
 }
 
 static int number_of_neighbours_border(int x, int y)
@@ -146,7 +137,7 @@ static void draw_grid (void)
 {
   int x, y;
 
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(renderer, 32, 32, 32, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(renderer);
 
   for (x = 0; x < SIZEUNIT; x++)
@@ -166,7 +157,7 @@ static void draw_grid (void)
   SDL_RenderPresent(renderer);
 }
 
-static uint32_t crc[8];
+static uint32_t crc[4];
 
 static int sequence_detected (int step)
 {
@@ -201,7 +192,7 @@ int command_line_parameter (const char *parm)
 int main (int argc, char **argv)
 {
   int quit = 0;
-  int step = 0, alive;
+  int step = 0, alive = 0;
   char msg[64];
   int flags = SDL_WINDOW_RESIZABLE;
   char *filename = NULL;
@@ -236,13 +227,13 @@ int main (int argc, char **argv)
   SDL_RenderSetLogicalSize(renderer, SIZEUNIT, SIZEUNIT);
   SDL_SetWindowTitle(window, title);
 
-  init_grid(filename);
+  quit = init_grid(filename);
 
   while (!quit)
   {
     int x, y;
 
-    crc[step & 7] = crc32(grid, SIZEUNIT * SIZEUNIT);
+    crc[step & 3] = crc32(grid, SIZEUNIT * SIZEUNIT);
 
     draw_grid();
 
@@ -279,7 +270,7 @@ int main (int argc, char **argv)
       }
     }
 
-    if (alive == 0 || sequence_detected(step & 7))
+    if (alive == 0 || sequence_detected(step & 3))
     {
       quit = 1;
     }

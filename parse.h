@@ -15,11 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRC32_H
-#define CRC32_H
+#ifndef PARSE_H
+#define PARSE_H
 
-#include <stdint.h>
-
-uint32_t crc32 (const void *buf, size_t size);
+int parse_file (char *filename);
 
 #endif
