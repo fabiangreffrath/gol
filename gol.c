@@ -37,7 +37,7 @@ static int init_grid(char *filename)
 
   if (filename == NULL)
   {
-    // acorn
+    /* acorn */
     grid[cx-3][cy+1] = ALIVE;
     grid[cx-2][cy-1] = ALIVE;
     grid[cx-2][cy+1] = ALIVE;
@@ -123,14 +123,14 @@ static int survival_condition(int x, int y)
 enum {R, G, B};
 
 static const Uint8 colors[9][3] = {
-  {0x55, 0x57, 0x53}, // Aluminium
-  {0xcc, 0x00, 0x00}, // Scarlet Red
-  {0x75, 0x50, 0x7b}, // Plum
-  {0x34, 0x65, 0xa4}, // Sky Blue
-  {0x73, 0xd2, 0x16}, // Chameleon
-  {0xc1, 0x7d, 0x11}, // Chocolate
-  {0xf5, 0x79, 0x00}, // Orange
-  {0xed, 0xd4, 0x00}, // Butter
+  {0x55, 0x57, 0x53}, /* Aluminium */
+  {0xcc, 0x00, 0x00}, /* Scarlet Red */
+  {0x75, 0x50, 0x7b}, /* Plum */
+  {0x34, 0x65, 0xa4}, /* Sky Blue */
+  {0x73, 0xd2, 0x16}, /* Chameleon */
+  {0xc1, 0x7d, 0x11}, /* Chocolate */
+  {0xf5, 0x79, 0x00}, /* Orange */
+  {0xed, 0xd4, 0x00}, /* Butter */
 };
 
 static void draw_grid (void)
@@ -159,9 +159,9 @@ static void draw_grid (void)
 
 static uint32_t crc[4];
 
-static int sequence_detected (int step)
+static int sequence_detected (unsigned int step)
 {
-  int i;
+  size_t i;
 
   for (i = 0; i < sizeof(crc)/sizeof(*crc); i++)
   {
@@ -198,6 +198,8 @@ int main (int argc, char **argv)
   char *filename = NULL;
   int p;
 
+  SDL_Event event;
+
   myargc = argc;
   myargv = argv;
 
@@ -218,8 +220,6 @@ int main (int argc, char **argv)
       filename = myargv[p + 1];
     }
   }
-
-  SDL_Event event;
 
   SDL_Init(SDL_INIT_VIDEO);
 

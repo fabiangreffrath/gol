@@ -38,7 +38,7 @@
 static int x, y;
 static char line[1024], *p = NULL;
 
-// RLE parser
+/* RLE parser */
 static int parse_rle (FILE *file)
 {
   int x0 = cx, y0 = cy;
@@ -116,7 +116,7 @@ static int parse_rle (FILE *file)
   return 1;
 }
 
-// Plaintext / Life 1.05 parser
+/* Plaintext / Life 1.05 parser */
 static int parse_plaintext (FILE *file)
 {
   y = cy;
@@ -143,7 +143,7 @@ static int parse_plaintext (FILE *file)
   return 0;
 }
 
-// Life 1.06 parser
+/* Life 1.06 parser */
 static int parse_life106 (FILE *file)
 {
   while (fgets(line, sizeof(line), file) != NULL)
