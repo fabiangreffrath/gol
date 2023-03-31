@@ -21,6 +21,20 @@
 
 #include "gol.h"
 
+#define SET_ALIVE(x, y) \
+  do \
+  { \
+    if (x >= 0 && x < SIZEUNIT && \
+        y >= 0 && y < SIZEUNIT) \
+    { \
+      grid[x][y] = ALIVE; \
+    } \
+    else \
+    { \
+      return 1; \
+    } \
+  } while(0)
+
 static int x, y;
 static char line[1024], *p = NULL;
 
@@ -68,7 +82,7 @@ static int parse_rle (FILE *file)
         {
           if (*p != 'B')
           {
-            grid[x][y] = ALIVE;
+            SET_ALIVE(x, y);
             printf("O");
           }
           else
@@ -102,27 +116,28 @@ static int parse_rle (FILE *file)
   return 1;
 }
 
-// Plaintext parser
+// Plaintext / Life 1.05 parser
 static int parse_plaintext (FILE *file)
 {
   y = cy;
 
   while (fgets(line, sizeof(line), file) != NULL)
   {
-    if (line[0] == '!')
+    if (line[0] == '!' || line[0] == '#')
       continue;
 
     x = cx;
 
-    for (p = line; *p; p++)
+    for (p = line; *p; p++, x++)
     {
-      if (*p == '.')
-        x++;
-      else if (*p == 'O')
-        grid[x++][y] = ALIVE;
+      *p = toupper(*p);
+
+      if (*p == 'O' || *p == '*')
+        SET_ALIVE(x, y);
     }
 
     y++;
+    printf("\n");
   }
 
   return 0;
@@ -137,7 +152,7 @@ static int parse_life106 (FILE *file)
       continue;
 
     if (sscanf(line, "%d %d", &x, &y) == 2)
-      grid[cx+x][cy+y] = ALIVE;
+      SET_ALIVE(cx+x, cy+y);
   }
 
   return 0;
