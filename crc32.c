@@ -3,6 +3,8 @@
  *  code or tables extracted from it, as desired without restriction.
  */
 
+#include <stddef.h>
+
 #include "crc32.h"
 
 static const uint32_t crc32_tab[] =
