@@ -35,23 +35,23 @@ static char **myargv;
 
 unsigned char grid[SIZEUNIT][SIZEUNIT];
 
+#define EACH_CELL \
+  for (int x = 0; x < SIZEUNIT; x++) \
+    for (int y = 0; y < SIZEUNIT; y++)
+
 static int init_grid(char *filename)
 {
   memset(grid, 0, sizeof(grid));
 
   if (filename == NULL)
   {
-    int x, y;
-
     srand(time(NULL));
-    for (x = 0; x < SIZEUNIT; x++)
+
+    EACH_CELL
     {
-      for (y = 0; y < SIZEUNIT; y++)
+      if (rand() < RAND_MAX / 4)
       {
-        if (rand() < RAND_MAX / 4)
-        {
-          grid[x][y] = ALIVE;
-        }
+        grid[x][y] = ALIVE;
       }
     }
 
@@ -144,22 +144,17 @@ static const Uint8 colors[9][3] = {
 
 static void draw_grid (void)
 {
-  int x, y;
-
   SDL_SetRenderDrawColor(renderer, 32, 32, 32, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(renderer);
 
-  for (x = 0; x < SIZEUNIT; x++)
+  EACH_CELL
   {
-    for (y = 0; y < SIZEUNIT; y++)
+    if (grid[x][y] == ALIVE)
     {
-      if (grid[x][y] == ALIVE)
-      {
-        const int non = number_of_neighbours(x, y);
-        const Uint8 *const color = colors[non];
-        SDL_SetRenderDrawColor(renderer, color[R], color[G], color[B], SDL_ALPHA_OPAQUE);
-        SDL_RenderPoint(renderer, x, y);
-      }
+      const int non = number_of_neighbours(x, y);
+      const Uint8 *const color = colors[non];
+      SDL_SetRenderDrawColor(renderer, color[R], color[G], color[B], SDL_ALPHA_OPAQUE);
+      SDL_RenderPoint(renderer, x, y);
     }
   }
 
@@ -242,31 +237,23 @@ int main (int argc, char **argv)
 
   while (!quit)
   {
-    int x, y;
-
     crc[step & 3] = crc32(grid, SIZEUNIT * SIZEUNIT);
 
     draw_grid();
 
     alive = 0;
-    for (x = 0; x < SIZEUNIT; x++)
+    EACH_CELL
     {
-      for (y = 0; y < SIZEUNIT; y++)
+      if (survival_condition(x, y))
       {
-        if (survival_condition(x, y))
-        {
-          grid[x][y] |= SURVIVE;
-          alive++;
-        }
+        grid[x][y] |= SURVIVE;
+        alive++;
       }
     }
 
-    for (x = 0; x < SIZEUNIT; x++)
+    EACH_CELL
     {
-      for (y = 0; y < SIZEUNIT; y++)
-      {
-        grid[x][y] >>= 1;
-      }
+      grid[x][y] >>= 1;
     }
 
     SDL_Delay(step ? 50 : 2000);
