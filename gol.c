@@ -16,6 +16,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "SDL.h"
 
@@ -39,14 +41,19 @@ static int init_grid(char *filename)
 
   if (filename == NULL)
   {
-    /* acorn */
-    grid[cx-3][cy+1] = ALIVE;
-    grid[cx-2][cy-1] = ALIVE;
-    grid[cx-2][cy+1] = ALIVE;
-    grid[cx]  [cy]   = ALIVE;
-    grid[cx+1][cy+1] = ALIVE;
-    grid[cx+2][cy+1] = ALIVE;
-    grid[cx+3][cy+1] = ALIVE;
+    int x, y;
+
+    srand(time(NULL));
+    for (x = 0; x < SIZEUNIT; x++)
+    {
+      for (y = 0; y < SIZEUNIT; y++)
+      {
+        if (rand() < RAND_MAX / 4)
+        {
+          grid[x][y] = ALIVE;
+        }
+      }
+    }
 
     return 0;
   }
