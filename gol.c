@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 #include "crc32.h"
 #include "gol.h"
@@ -158,7 +158,7 @@ static void draw_grid (void)
         const int non = number_of_neighbours(x, y);
         const Uint8 *const color = colors[non];
         SDL_SetRenderDrawColor(renderer, color[R], color[G], color[B], SDL_ALPHA_OPAQUE);
-        SDL_RenderDrawPoint(renderer, x, y);
+        SDL_RenderPoint(renderer, x, y);
       }
     }
   }
@@ -214,7 +214,7 @@ int main (int argc, char **argv)
 
   if (command_line_parameter("-fullscreen"))
   {
-    flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    flags = SDL_WINDOW_FULLSCREEN;
   }
 
   if (command_line_parameter("-torus"))
@@ -232,9 +232,11 @@ int main (int argc, char **argv)
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_CreateWindowAndRenderer(SIZEUNIT, SIZEUNIT, flags, &window, &renderer);
-  SDL_RenderSetLogicalSize(renderer, SIZEUNIT, SIZEUNIT);
-  SDL_SetWindowTitle(window, title);
+  SDL_CreateWindowAndRenderer(title, SIZEUNIT, SIZEUNIT, flags, &window, &renderer);
+  SDL_SetRenderLogicalPresentation(renderer, SIZEUNIT, SIZEUNIT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
+  SDL_RenderPresent(renderer);
+  SDL_SyncWindow(window);
 
   quit = init_grid(filename);
 
@@ -271,9 +273,9 @@ int main (int argc, char **argv)
 
     while (SDL_PollEvent(&event))
     {
-      if (event.type == SDL_MOUSEBUTTONDOWN ||
-          event.type == SDL_KEYDOWN ||
-          event.type == SDL_QUIT)
+      if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+          event.type == SDL_EVENT_KEY_DOWN ||
+          event.type == SDL_EVENT_QUIT)
       {
         quit = 1;
       }

@@ -3,8 +3,8 @@
 CFLAGS ?= -O3 -Wall -W -pedantic -ansi
 CFLAGS += -std=c99
 
-CFLAGS += $(shell pkg-config --cflags sdl2)
-LDLIBS += $(shell pkg-config --libs sdl2)
+CFLAGS += $(shell pkg-config --cflags sdl3)
+LDLIBS += $(shell pkg-config --libs sdl3)
 
 OBJS = gol.o crc32.o parse.o
 
