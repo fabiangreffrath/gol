@@ -34,6 +34,7 @@ static int myargc;
 static char **myargv;
 
 unsigned char grid[SIZEUNIT][SIZEUNIT];
+static unsigned int col_offset;
 
 #define EACH_CELL \
   for (int x = 0; x < SIZEUNIT; x++) \
@@ -41,12 +42,14 @@ unsigned char grid[SIZEUNIT][SIZEUNIT];
 
 static int init_grid(char *filename)
 {
+  srand(time(NULL));
+
+  col_offset = rand();
+
   memset(grid, 0, sizeof(grid));
 
   if (filename == NULL)
   {
-    srand(time(NULL));
-
     EACH_CELL
     {
       if (rand() < RAND_MAX / 4)
@@ -61,9 +64,9 @@ static int init_grid(char *filename)
     return parse_file(filename);
 }
 
-static int number_of_neighbours_border(int x, int y)
+static unsigned int number_of_neighbours_border(int x, int y)
 {
-  int n = 0;
+  unsigned int n = 0;
 
   if (x > 0 && y > 0)
     if (grid[x-1][y-1] & ALIVE)
@@ -93,9 +96,9 @@ static int number_of_neighbours_border(int x, int y)
   return n;
 }
 
-static int number_of_neighbours_torus(int x, int y)
+static unsigned int number_of_neighbours_torus(int x, int y)
 {
-  int n = 0;
+  unsigned int n = 0;
 
   if (grid[(x-1) & SIZEMASK][(y-1) & SIZEMASK] & ALIVE)
     n++;
@@ -117,11 +120,11 @@ static int number_of_neighbours_torus(int x, int y)
   return n;
 }
 
-static int (*number_of_neighbours)(int x, int y) = number_of_neighbours_border;
+static unsigned int (*number_of_neighbours)(int x, int y) = number_of_neighbours_border;
 
 static int survival_condition(int x, int y)
 {
-  const int n = number_of_neighbours(x, y);
+  const unsigned int n = number_of_neighbours(x, y);
 
   if (grid[x][y] & ALIVE)
     return (n == 2 || n == 3);
@@ -129,21 +132,21 @@ static int survival_condition(int x, int y)
     return (n == 3);
 }
 
-enum {R, G, B};
-
-static const Uint8 colors[9][3] = {
-  {0x55, 0x57, 0x53}, /* Aluminium */
-  {0xcc, 0x00, 0x00}, /* Scarlet Red */
-  {0x75, 0x50, 0x7b}, /* Plum */
-  {0x34, 0x65, 0xa4}, /* Sky Blue */
-  {0x73, 0xd2, 0x16}, /* Chameleon */
-  {0xc1, 0x7d, 0x11}, /* Chocolate */
-  {0xf5, 0x79, 0x00}, /* Orange */
-  {0xed, 0xd4, 0x00}, /* Butter */
-};
-
 static void draw_grid (void)
 {
+  enum {R, G, B};
+
+  const Uint8 colors[9][3] = {
+    {0x55, 0x57, 0x53}, /* Aluminium */
+    {0xcc, 0x00, 0x00}, /* Scarlet Red */
+    {0x75, 0x50, 0x7b}, /* Plum */
+    {0x34, 0x65, 0xa4}, /* Sky Blue */
+    {0x73, 0xd2, 0x16}, /* Chameleon */
+    {0xc1, 0x7d, 0x11}, /* Chocolate */
+    {0xf5, 0x79, 0x00}, /* Orange */
+    {0xed, 0xd4, 0x00}, /* Butter */
+  };
+
   SDL_SetRenderDrawColor(renderer, 32, 32, 32, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(renderer);
 
@@ -152,7 +155,7 @@ static void draw_grid (void)
     if (grid[x][y] == ALIVE)
     {
       const int non = number_of_neighbours(x, y);
-      const Uint8 *const color = colors[non];
+      const Uint8 *const color = colors[(non + col_offset) & 7];
       SDL_SetRenderDrawColor(renderer, color[R], color[G], color[B], SDL_ALPHA_OPAQUE);
       SDL_RenderPoint(renderer, x, y);
     }
@@ -256,7 +259,7 @@ int main (int argc, char **argv)
       grid[x][y] >>= 1;
     }
 
-    SDL_Delay(step ? 50 : 2000);
+    SDL_Delay(step ? 67 : 2000);
 
     while (SDL_PollEvent(&event))
     {
